@@ -3,5 +3,6 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("Hello world")
+	project := OpenProject("test_assets/project.txt")
+	fmt.Println(project)
 }
