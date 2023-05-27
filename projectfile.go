@@ -22,12 +22,17 @@ type TextureEntry struct {
 type ProjectFile struct {
 	Colors   int
 	Offset   int
+	Indexer  ImageIndexer
 	Textures []TextureEntry
 }
 
 func OpenProject(filename string) ProjectFile {
-	var result ProjectFile
-	result.Textures = make([]TextureEntry, 0)
+	result := ProjectFile{
+		Colors:   256,
+		Offset:   0,
+		Indexer:  IndexerPosterize,
+		Textures: make([]TextureEntry, 0),
+	}
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -80,6 +85,14 @@ func OpenProject(filename string) ProjectFile {
 					log.Fatal("Wrong argument for command 'offset'")
 				}
 				result.Offset = offset
+			case "indexer":
+				if len(fields) < 2 {
+					log.Fatal("Not enough arguments for command 'indexer'")
+				}
+				result.Indexer, err = GetIndexer(fields[1])
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 		} else {
 			if len(fields) != 2 && len(fields) != 4 {

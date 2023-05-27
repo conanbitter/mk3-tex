@@ -1,5 +1,6 @@
 #colors 250
 #offset 5
+#indexer pattern8
 "poster 1" gatox01.png
 "poster 2" gatox02.png
 avatar1 "gatox01a.png" 0 0

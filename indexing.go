@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"runtime"
 	"sort"
 	"sync"
@@ -194,17 +195,17 @@ func IndexerPattern4(imageData []IntColor, pal Palette, width, height int) []int
 	return idata
 }
 
-func GetIndexer(name string) ImageIndexer {
+func GetIndexer(name string) (ImageIndexer, error) {
 	switch name {
 	case "poster":
-		return IndexerPosterize
+		return IndexerPosterize, nil
 	case "fs":
-		return IndexerFS
+		return IndexerFS, nil
 	case "pattern8":
-		return IndexerPattern8
+		return IndexerPattern8, nil
 	case "pattern4":
-		return IndexerPattern4
+		return IndexerPattern4, nil
 	default:
-		return IndexerPosterize
+		return nil, fmt.Errorf("indexer \"%s\" does not exist", name)
 	}
 }
