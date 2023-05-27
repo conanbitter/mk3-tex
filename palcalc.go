@@ -18,7 +18,7 @@ type ColorPoint struct {
 	distance float64
 }
 
-type KMeans struct {
+type PalCalc struct {
 	points    []ColorPoint
 	centroids []FloatColor
 
@@ -44,11 +44,11 @@ func swapPoints(left, right *ColorPoint) {
 	*left, *right = *right, *left
 }
 
-func NewQuantizier(colors int, steps int, attempt int) *KMeans {
-	return &KMeans{colors: colors, maxSteps: steps, maxAttempt: attempt}
+func NewPalCalc(colors int, steps int, attempt int) *PalCalc {
+	return &PalCalc{colors: colors, maxSteps: steps, maxAttempt: attempt}
 }
 
-func (km *KMeans) Input(images [][]IntColor, levels int) {
+func (km *PalCalc) Input(images [][]IntColor, levels int) {
 	var cube [256][256][256]uint64
 
 	for _, img := range images {
@@ -122,7 +122,7 @@ func (point *ColorPoint) pointDistance(center *ColorPoint) float64 {
 	return point.distance
 }
 
-func (km *KMeans) initCentroids() {
+func (km *PalCalc) initCentroids() {
 	centInd := 0
 	swapPoints(&km.points[0], &km.points[rand.Uint64()%km.poinCount])
 	for centInd < km.colors-1 {
@@ -150,7 +150,7 @@ func (km *KMeans) initCentroids() {
 	}
 }
 
-func (km *KMeans) calcCentroids() {
+func (km *PalCalc) calcCentroids() {
 	//start := time.Now()
 	newCentroids := make([]FloatColor, km.colors)
 	sizes := make([]uint64, km.colors)
@@ -176,7 +176,7 @@ func (km *KMeans) calcCentroids() {
 	//fmt.Printf("Centroids: %s   ", time.Since(start))
 }
 
-func (km *KMeans) calcSegments() {
+func (km *PalCalc) calcSegments() {
 	var (
 		mt sync.Mutex
 		wg sync.WaitGroup
@@ -235,7 +235,7 @@ func formatTime(dur time.Duration) string {
 	return result.String()
 }
 
-func (km *KMeans) printState(attempt int, step int, start time.Time) {
+func (km *PalCalc) printState(attempt int, step int, start time.Time) {
 	elapsed := time.Since(start)
 	remainingSteps := km.maxSteps*km.maxAttempt - step - (attempt-1)*km.maxSteps
 	remaining := elapsed * time.Duration(remainingSteps) / time.Duration(step+(attempt-1)*km.maxSteps)
@@ -250,7 +250,7 @@ func (km *KMeans) printState(attempt int, step int, start time.Time) {
 		formatTime(remaining))
 }
 
-func (km *KMeans) CalcError() float64 {
+func (km *PalCalc) CalcError() float64 {
 	score := float64(0)
 	for _, point := range km.points {
 		score += math.Sqrt(point.color.Distance(km.centroids[point.segment])) * float64(point.count)
@@ -258,9 +258,8 @@ func (km *KMeans) CalcError() float64 {
 	return score
 }
 
-func (km *KMeans) Run() {
+func (km *PalCalc) Run() {
 	km.errors = make([]float64, 0, km.maxAttempt)
-	fmt.Println("Calculating...")
 	startTime := time.Now()
 	for a := 1; a < km.maxAttempt+1; a++ {
 		km.initCentroids()
@@ -287,7 +286,7 @@ func (km *KMeans) Run() {
 	fmt.Println()
 }
 
-func (km *KMeans) calcPalette() Palette {
+func (km *PalCalc) calcPalette() Palette {
 	result := make(Palette, 0, km.colors+1)
 	for _, c := range km.centroids {
 		result = append(result, c.ToIntColor().Normalized())
@@ -298,6 +297,6 @@ func (km *KMeans) calcPalette() Palette {
 	return result
 }
 
-func (km *KMeans) GetPalette() Palette {
+func (km *PalCalc) GetPalette() Palette {
 	return km.bestPalette
 }
