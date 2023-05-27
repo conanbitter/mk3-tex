@@ -48,7 +48,7 @@ func NewPalCalc(colors int, steps int, attempt int) *PalCalc {
 	return &PalCalc{colors: colors, maxSteps: steps, maxAttempt: attempt}
 }
 
-func (km *PalCalc) Input(images [][]IntColor, levels int) {
+func (km *PalCalc) Input(images [][]IntColor) {
 	var cube [256][256][256]uint64
 
 	for _, img := range images {
@@ -68,9 +68,7 @@ func (km *PalCalc) Input(images [][]IntColor, levels int) {
 		}
 	}
 
-	fmt.Printf("\n\nTotal number of pure colors: %d\n", colors_total)
-	colors_total *= uint64(levels)
-	fmt.Printf("\n\nTotal number of all colors: %d\n", colors_total)
+	fmt.Printf("Total number of colors: %d\n", colors_total)
 	if colors_total == 0 {
 		panic(errors.New("wrong input"))
 	}
@@ -89,14 +87,6 @@ func (km *PalCalc) Input(images [][]IntColor, levels int) {
 						segment:  0,
 						count:    cube[r][g][b],
 						distance: math.MaxFloat64})
-					for l := 1; l <= levels-1; l++ {
-						k := float64(l) / float64(levels)
-						km.points = append(km.points, ColorPoint{
-							color:    FloatColor{float64(r) / 255 * k, float64(g) / 255 * k, float64(b) / 255 * k},
-							segment:  0,
-							count:    cube[r][g][b],
-							distance: math.MaxFloat64})
-					}
 				}
 			}
 		}
@@ -292,8 +282,7 @@ func (km *PalCalc) calcPalette() Palette {
 		result = append(result, c.ToIntColor().Normalized())
 
 	}
-	result = append(result, IntColor{0, 0, 0})
-	//result.Sort()
+	result.Sort()
 	return result
 }
 
