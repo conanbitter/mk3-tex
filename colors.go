@@ -2,10 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"image"
-	"image/color"
-	"image/png"
-	"log"
 	"math"
 	"os"
 	"sort"
@@ -151,27 +147,4 @@ func PaletteLoad(filename string) Palette {
 		panic(err)
 	}
 	return *result
-}
-
-func (pal Palette) SavePreview(width int, filename string) {
-	height := pal.Len()/width + 1
-	oimg := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{width, height}})
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			index := y*width + x
-			if index >= pal.Len() {
-				break
-			}
-			coli := pal[index]
-			oimg.SetRGBA(x, y, color.RGBA{uint8(coli.R), uint8(coli.G), uint8(coli.B), 255})
-		}
-	}
-	outf, err := os.Create(filename)
-	if err != nil {
-		panic(err)
-	}
-	defer outf.Close()
-	if err = png.Encode(outf, oimg); err != nil {
-		log.Printf("failed to encode: %v", err)
-	}
 }
